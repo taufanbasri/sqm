@@ -7,6 +7,7 @@ use App\Http\Resources\LeadsResource;
 use App\Models\Leads;
 use App\Services\LeadsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class LeadsController extends Controller
 {
@@ -36,9 +37,14 @@ class LeadsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, LeadsService $leadsService, string $id)
     {
-        //
+        $leads = $leadsService->update($request, $id);
+
+        return response()->json([
+            'message' => 'Leads has been updated successfully!',
+            'data' => new LeadsResource($leads)
+        ]);
     }
 
     /**
@@ -46,6 +52,16 @@ class LeadsController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $leads = Leads::find($id);
+
+        if (!$leads) {
+            return response()->json(['message' => 'Lead not found.'], 404);
+        }
+
+        $leads->delete();
+
+        return response()->json([
+            'message' => 'Leads deleted successfully!',
+        ]);
     }
 }

@@ -21,7 +21,7 @@ class LeadsService
             return response()->json($validator->errors(), 422);
         }
 
-        $data = $request->all();
+        $data = $request->only(['name', 'phone', 'email']);
 
         $users = User::where('role', 'sales')->get();
         $sales_leads = [];
@@ -37,6 +37,32 @@ class LeadsService
         $data['sales_id'] = $assignedSalesId;
 
         $leads = Leads::create($data);
+
+        return $leads;
+    }
+
+    public function update(Request $request, $id): Leads
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'nullable',
+            'phone' => 'nullable',
+            'email' => 'nullable|email',
+            'status' => 'required|in:new,booking,drop'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $data = $request->only(['name', 'phone', 'email', 'status']);
+
+        $leads = Leads::find($id);
+
+        if (!$leads) {
+            return response()->json(['message' => 'Lead not found.'], 404);
+        }
+
+        $leads->update($data);
 
         return $leads;
     }
