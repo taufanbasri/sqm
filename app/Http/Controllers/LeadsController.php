@@ -35,6 +35,23 @@ class LeadsController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $leads = Leads::find($id);
+
+        if (!$leads) {
+            return response()->json(['message' => 'Lead not found.'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Leads details',
+            'data' => new LeadsResource($leads)
+        ]);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, LeadsService $leadsService, string $id)
